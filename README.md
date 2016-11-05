@@ -23,3 +23,18 @@ const app = compile(
 )
 server(app, "localhost", 5000);
 ```
+
+## Middleware Example
+```javascript
+const {serve, router: {compile, get}, middleware: {jsonBody}} = require("angstrom");
+const int = "(\\d+)";
+const app = compile(
+  get("^/person", {}, () => "You tried to get everyone."),
+  post(`^/person`, {}, jsonBody((ctx) => `You tried to create person ${ctx.body.name}`))
+)
+server(app, "localhost", 5000);
+```
+### List of current middleware
+streamingBody: turns the body into a kefir stream of data chunks
+bufferedBody: attempts to buffer the entire body and return a promise for it
+jsonBody: bufferedBody, but with parsing to JSON included
