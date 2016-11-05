@@ -7,5 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Brandon keown",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "kefir": "^3.6.0",
+    "ramda": "^0.22.1"
+  },
+  "devDependencies": {
+    "np": "^2.10.0"
+  }
 }
