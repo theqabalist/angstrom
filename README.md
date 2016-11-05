@@ -1,5 +1,5 @@
 # angstrom
-A minimalist server thought experiment.
+A minimalist server thought experiment.  Feel free to use in production, as you have to provide nearly all functionality yourself.
 
 ## Basic Example
 ```javascript
