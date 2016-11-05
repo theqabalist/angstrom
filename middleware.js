@@ -1,12 +1,6 @@
-module.exports = (function ({curry, identity, T, invoker, assoc, composeP}, {fromEvents}) {
+module.exports = (function ({curry, identity, T, invoker, assoc, composeP, compose, prop}, {fromReadableStream}) {
     const join = invoker(1, "join");
-    const bodyAsStream = (ctx) => {
-        const end$ = fromEvents(ctx.req, "end");
-        return fromEvents(ctx.req, "readable")
-            .takeUntilBy(end$)
-            .map(() => ctx.req.read())
-            .filter(identity);
-    };
+    const bodyAsStream = compose(fromReadableStream, prop("req"));
     const bufferedBodyFromStream = (ctx) => bodyAsStream(ctx)
         .bufferWhile(T)
         .map(join(""))
@@ -20,5 +14,6 @@ module.exports = (function ({curry, identity, T, invoker, assoc, composeP}, {fro
     };
 }(
     require("ramda"),
-    require("kefir")
+    require("kefir"),
+    require("./streams")
 ));

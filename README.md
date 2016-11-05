@@ -38,3 +38,15 @@ server(app, "localhost", 5000);
 * **streamingBody**: turns the body into a kefir stream of data chunks
 * **bufferedBody**: attempts to buffer the entire body and return a promise for it
 * **jsonBody**: bufferedBody, but with parsing to JSON included
+
+## App example
+```javascript
+const {serve, router: {compile, get}, apps: {fileServer}} = require("angstrom");
+const {identity} = require("ramda");
+const app = compile(
+  get("^/(.*)$", {path: identity}, fileServer(".")) // serves files out of CWD; streams off disk, not buffered
+);
+serve(app, "localhost", 5000);
+```
+### List of current apps
+* **fileServer**: expects to run inside a router that provides the path completion, root is provided during construction.

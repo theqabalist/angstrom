@@ -1,7 +1,7 @@
 module.exports = (function (
     {createServer}, // http
     {fromEvents, pool, constant, constantError, fromPromise}, // kefir
-    {head, last, is, objOf},
+    {head, last, is, objOf, cond, has, T, compose},
     Promise) {
     const server = createServer();
     const raw$ = fromEvents(server, "request", (req, res) => [req, res]);
@@ -11,6 +11,22 @@ module.exports = (function (
         return {body: JSON.stringify({msg: e.message, stack: e.stack.split("\n")}), status: 500};
     }
 
+    function writeScalarResponse([desc, res]) {
+        res.statusCode = desc.status;
+        res.end(desc.body);
+    }
+
+    function writeStreamResponse([desc, res]) {
+        res.statusCode = desc.status;
+        desc.body$.onValue(res.write.bind(res));
+        desc.body$.onEnd(res.end.bind(res));
+    }
+
+    const writeResponse = cond([
+        [compose(has("body$"), head), writeStreamResponse],
+        [T, writeScalarResponse]
+    ]);
+
     return {
         serve: (app, host, port) => {
             req$.map(objOf("req"))
@@ -19,16 +35,7 @@ module.exports = (function (
                 .map(Promise.resolve)
                 .flatMap(p => fromPromise(p.catch(errorToDescriptor)))
                 .zip(raw$.map(last))
-                .onValue(([desc, res]) => {
-                    try {
-                        res.statusCode = desc.status;
-                        res.end(desc.body);
-                    } catch (e) {
-                        res.statusCode = 500;
-                        res.end();
-                        console.error(e);
-                    }
-                });
+                .onValue(writeResponse);
             server.listen(port, host);
         }
     };
