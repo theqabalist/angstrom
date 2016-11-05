@@ -35,6 +35,6 @@ const app = compile(
 server(app, "localhost", 5000);
 ```
 ### List of current middleware
-streamingBody: turns the body into a kefir stream of data chunks
-bufferedBody: attempts to buffer the entire body and return a promise for it
-jsonBody: bufferedBody, but with parsing to JSON included
+* **streamingBody**: turns the body into a kefir stream of data chunks
+* **bufferedBody**: attempts to buffer the entire body and return a promise for it
+* **jsonBody**: bufferedBody, but with parsing to JSON included
