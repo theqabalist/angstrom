@@ -8,6 +8,10 @@
   },
   "author": "Brandon keown",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theqabalist/blackbird"
+  },
   "dependencies": {
     "bluebird": "^3.4.6",
     "kefir": "^3.6.0",
