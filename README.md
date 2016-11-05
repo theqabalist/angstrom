@@ -39,6 +39,9 @@ server(app, "localhost", 5000);
 * **bufferedBody**: attempts to buffer the entire body and return a promise for it
 * **jsonBody**: bufferedBody, but with parsing to JSON included
 
+### Streaming responses
+You may send a kefir or bacon stream (requires "onValue") as body$ instead of body in the response promise, and will consume the stream into the response body.
+
 ## App example
 ```javascript
 const {serve, router: {compile, get}, apps: {fileServer}} = require("angstrom");
