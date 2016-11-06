@@ -1,7 +1,7 @@
 module.exports = (function (
     {createServer}, // http
     {fromEvents, pool, constant, constantError, fromPromise}, // kefir
-    {head, last, is, objOf, cond, has, T, compose},
+    {head, last, is, objOf, cond, has, T, compose, toPairs, merge},
     Promise) {
     const server = createServer();
     const raw$ = fromEvents(server, "request", (req, res) => [req, res]);
@@ -12,8 +12,17 @@ module.exports = (function (
     }
 
     function writeScalarResponse([desc, res]) {
-        res.statusCode = desc.status;
-        res.end(desc.body);
+        const withDefaults = merge({
+            status: 200,
+            headers: {},
+            body: ""
+        }, desc);
+        res.statusCode = withDefaults.status;
+        if (withDefaults.message) {
+            res.statusMessage = withDefaults.message;
+        }
+        toPairs(withDefaults.headers).forEach((args) => res.setHeader(...args));
+        res.end(withDefaults.body);
     }
 
     function writeStreamResponse([desc, res]) {
