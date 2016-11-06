@@ -7,7 +7,7 @@
 It also assumes you are familiar with promises, and streams (Kefir/Bacon interface in this case).  The basic interface lies in a Kleisli category, and thus if you are familiar with category theory (or the muddy derivative that is the promise interface), then that is all you need to know to build infinitely large or small applications.  Åll applications meet the same contract, which is `Context -> Promise ResponseDescriptor`.  Middleware extends applications by enveloping around this and meeting the same contract, or by Kleisli pre or post composing (Ramda's `composeP`).  The only thing that is guaranteed to be in the context, at least in the most naked application, is the request object.  The response descriptor can provide a body string (property "body") or a body stream (property "body$"), headers, and the response code (response message is optional).
 
 ## The bottom line.
-**_Composition will set you free._**
+**_Functional composition will set you free._**
 
 # Examples
 
