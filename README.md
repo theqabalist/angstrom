@@ -1,6 +1,11 @@
 # Ångstrom
 Å minimalist server thought experiment.  Feel free to use in production, as you have to provide nearly all functionality yourself.  Ångstrom is very small.  The server core is less than 60 SLOC, the router is less than 40 SLOC.  Middleware and apps are unnecessary, but are provided as examples in consumption patterns and for convenience.  If your server is going to be slow, it's because you shot yourself in the foot, not because Ångstrom got in your way.
 
+## Installation
+```
+npm install angstrom
+```
+
 ## Åssumptions
 Ångstrom makes a few assumptions about you as a developer.  First, it assumes that you are largely regimented.  For example, routing is done using regular expressions in the raw, so you should know not to create two routes that overlap in keyspace unless you are absolutely sure you know what you're doing.
 
