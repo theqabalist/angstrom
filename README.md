@@ -58,7 +58,10 @@ server(app, "localhost", 5000);
 ```
 Router mapping adds `params: {string: a}` to context.
 
-## Middleware Example
+## Middleware
+The middleware provided with the server is mostly provided in a manner that demonstrates the power of the abstraction.  This is to say that the choices I have made for the way the middlewares work, especially certain things that people may disagree with, such as global error handling, are provided for illustrative purposes.  If they work for you that's great.  If they don't, the whole point of this server is that it's extremely easy to extend in just the way you need.
+
+### Middleware example
 ```javascript
 const {serve, router: {compile, get}, middleware: {jsonBody}} = require("angstrom");
 const int = "(\\d+)";
@@ -72,6 +75,7 @@ server(app, "localhost", 5000);
 * **streamingBody**: turns the body into a kefir stream of data chunks.  Adds `body$: kefir.Observable` to context.
 * **bufferedBody**: attempts to buffer the entire body and return a promise for it. Adds `body: Promise String` to context.
 * **jsonBody**: bufferedBody, but with parsing to JSON included. Adds `body: Promise Object` to context.
+* **errorHandler**: listens for crashes in the contained app and converts to server friendly responses, also logs the error to stdout.  Implemented with try/catch, so beware nesting with other try/catch.
 
 ### Streaming responses
 You may send a kefir or Baconjs stream (duck types to `onValue: (f: Function) -> ()`) as `body$` instead of `body` in the promise for the response descriptor, and it will consume the stream into the response body.

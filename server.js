@@ -7,10 +7,6 @@ module.exports = (function (
     const raw$ = fromEvents(server, "request", (req, res) => [req, res]);
     const req$ = raw$.map(head);
 
-    function errorToDescriptor(e) {
-        return {body: JSON.stringify({msg: e.message, stack: e.stack.split("\n")}), status: 500};
-    }
-
     function writeScalarResponse([desc, res]) {
         const withDefaults = merge({
             status: 200,
@@ -42,10 +38,13 @@ module.exports = (function (
                 .map(app)
                 .map(x => is(String, x) ? {body: x, status: 200} : x)
                 .map(Promise.resolve)
-                .flatMap(p => fromPromise(p.catch(errorToDescriptor)))
+                .flatMap(fromPromise)
                 .zip(raw$.map(last))
                 .onValue(writeResponse);
-            server.listen(port, host);
+
+            server.listen(port, host, () => {
+                console.info(`Angstrom listening on ${host}:${port}.`);
+            });
         }
     };
 }(
