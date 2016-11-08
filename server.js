@@ -1,8 +1,8 @@
 module.exports = (function (
     {createServer}, // http
     {fromEvents, pool, constant, constantError, fromPromise}, // kefir
-    {head, last, is, objOf, cond, has, T, compose, toPairs, merge},
-    Promise) {
+    {head, last, objOf, cond, has, T, compose, toPairs, merge}
+) {
     const server = createServer();
     const raw$ = fromEvents(server, "request", (req, res) => [req, res]);
     const req$ = raw$.map(head);
@@ -36,8 +36,6 @@ module.exports = (function (
         serve: (app, host, port) => {
             req$.map(objOf("req"))
                 .map(app)
-                .map(x => is(String, x) ? {body: x, status: 200} : x)
-                .map(Promise.resolve)
                 .flatMap(fromPromise)
                 .zip(raw$.map(last))
                 .onValue(writeResponse);
@@ -50,6 +48,5 @@ module.exports = (function (
 }(
     require("http"),
     require("kefir"),
-    require("ramda"),
-    require("bluebird")
+    require("ramda")
 ));

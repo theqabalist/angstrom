@@ -1,4 +1,8 @@
-module.exports = (function ({streamingBody, bufferedBody, jsonBody}, {curry}) {
+module.exports = (function (
+    {streamingBody, bufferedBody, jsonBody},
+    {curry, curryN, compose, composeP, is},
+    {resolve}
+) {
     return {
         streamingBody,
         bufferedBody,
@@ -16,9 +20,12 @@ module.exports = (function ({streamingBody, bufferedBody, jsonBody}, {curry}) {
                 });
             }
         }),
-        requestLogger: require("./requestLogger")
+        requestLogger: require("./requestLogger"),
+        sync: curryN(2, compose)(resolve),
+        simple: curryN(2, composeP)(x => is(String, x) ? {body: x, status: 200} : x)
     };
 }(
     require("./body"),
-    require("ramda")
+    require("ramda"),
+    require("bluebird")
 ));

@@ -1,4 +1,4 @@
-module.exports = (function ({v4: uuid4}, Promise, {curry, toPairs, assoc}, moment) {
+module.exports = (function ({v4: uuid4}, {curry, toPairs, assoc}, moment, Promise) {
     const defaultID = () => Promise.resolve(uuid4());
 
     const log = curry((lineLead, id, date, data) => {
@@ -20,7 +20,7 @@ module.exports = (function ({v4: uuid4}, Promise, {curry, toPairs, assoc}, momen
                     path: ctx.req.url,
                     remoteAddr: ctx.req.connection.remoteAddress
                 });
-                return Promise.resolve(f(assoc("log", innerLog(id), ctx))).then(res => {
+                return f(assoc("log", innerLog(id), ctx)).then(res => {
                     const ended = new Date().getTime();
                     log("REQUEST_SERVICE", id, ended, {
                         status: res.status,
@@ -32,7 +32,7 @@ module.exports = (function ({v4: uuid4}, Promise, {curry, toPairs, assoc}, momen
     });
 }(
     require("node-uuid"),
-    require("bluebird"),
     require("ramda"),
-    require("moment")
+    require("moment"),
+    require("bluebird")
 ));

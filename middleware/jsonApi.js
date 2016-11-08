@@ -4,7 +4,7 @@ module.exports = (function ({jsonBody}, {evolve, curry, assoc}, Promise) {
         const hasBody = parseInt(ctx.req.headers["content-length"], 10);
         console.dir(hasBody);
         return !hasBody || hasBody && contentType === "application/json" ?
-            Promise.resolve(jsonBody(f, ctx))
+            jsonBody(f, ctx)
                 .then(evolve({
                     body: JSON.stringify,
                     headers: assoc("Content-Type", "application/json")

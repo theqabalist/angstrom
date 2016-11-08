@@ -37,7 +37,7 @@ It also assumes you are familiar with promises, and streams (Kefir/Bacon interfa
 ## Basic Example
 ```javascript
 const Å = require("angstrom");
-Å.serve(() => "hello world", "localhost", 5000);
+Å.serve(() => Promise.resolve("hello world"), "localhost", 5000);
 ```
 
 ## Åsync Example
@@ -78,6 +78,8 @@ server(app, "localhost", 5000);
 * **jsonApi**: jsonBody, but with parsing from and serializing to JSON included. Adds `body: Promise Object` to context.  Checks if incoming headers are application/json, and sets outgoing headers to application/json.
 * **errorHandler**: listens for crashes in the contained app and converts to server friendly responses, also logs the error to stdout.  Implemented with try/catch, so beware nesting with other try/catch.
 * **requestLogger**: requires a parameter which generates a unique ID for each request (null to default to UUIDv4, can be synchronous or thenable).  Logs to stdout.  Logs beginning of request, and after service is complete.  Provides function `log` on `ctx` which takes arbitrary Key-Value pair object and turns it into log data.
+* **sync**: Allows you to pass back synchronous data (Context -> ResponseDescriptor).
+* **simple**: Allows you to pass back a string that will be interpolated into a ResponseDescriptor with 200 status (Context -> String).
 
 ### Stacking middleware
 Functions are your friend, so just compose them.  Beware that order of side effects matters.
