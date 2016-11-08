@@ -1,4 +1,4 @@
-module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, assoc, always, prop}) {
+module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, assoc, always, prop}, Promise) {
     const handleRoute = curry(
         (method, pattern, pmap, handler, table) =>
             table.concat(Array.of([new RegExp(method), new RegExp(pattern), pmap, handler]))
@@ -10,7 +10,7 @@ module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, 
         return handler(assoc("params", applied, ctx));
     });
 
-    const defaultHandler = [/.*/, /.*/, {}, always({body: "not found", status: 404})];
+    const defaultHandler = [/.*/, /.*/, {}, always(Promise.resolve({body: "not found", status: 404}))];
     function compile(...directives) {
         const table = compose(...directives)([]).concat(Array.of(defaultHandler));
         const condable = map(([meth, pat, pmap, handler]) => {
@@ -30,5 +30,6 @@ module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, 
         sub: handleRoute(".*")
     };
 }(
-    require("ramda")
+    require("ramda"),
+    require("bluebird")
 ));

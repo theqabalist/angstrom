@@ -5,7 +5,10 @@ module.exports = (function ({curry}, {createReadStream, access, constants: R_OK}
             const path = root + ctx.params.path;
             return access(path, R_OK)
                 .then(() => ({status: 200, body$: fromReadableStream(createReadStream(path))}))
-                .catch(() => ({status: 404}));
+                .catch((e) => {
+                    console.warn(e);
+                    return {status: 404};
+                });
         })
     };
 }(

@@ -43,18 +43,20 @@ const Å = require("angstrom");
 ## Åsync Example
 ```javascript
 const Å = require("angstrom");
-Å.serve(() => Promise.new((resolve) => setTimeout(() => resolve("hello world"), 2000)), "localhost", "5000");
+Å.serve(() => new Promise((resolve) => setTimeout(() => resolve("hello world"), 2000)), "localhost", "5000");
 ```
 
 ## Routing Example
 ```javascript
-const {serve, router: {compile, get}} = require("angstrom");
+const {serve, router: {compile, get}, middleware: {sync, simple}} = require("../index");
+const {compose} = require("ramda");
 const int = "(\\d+)";
+const ss = compose(simple, sync);
 const app = compile(
-  get("^/person", {}, () => "You tried to get everyone."),
-  get(`^/person/${int}`, {id: parseInt}, (ctx) => `You tried to get person ${ctx.params.id}`)
-)
-server(app, "localhost", 5000);
+  get("^/person", {}, ss(() => "You tried to get everyone.")),
+  get(`^/person/${int}`, {id: parseInt}, ss((ctx) => `You tried to get person ${ctx.params.id}`))
+);
+serve(app, "localhost", 5000);
 ```
 Router mapping adds `params: {string: a}` to context.
 
@@ -63,13 +65,15 @@ The middleware provided with the server is mostly provided in a manner that demo
 
 ### Middleware example
 ```javascript
-const {serve, router: {compile, get}, middleware: {jsonBody}} = require("angstrom");
-const int = "(\\d+)";
+const {serve, router: {compile, get, post}, middleware: {jsonApi, simple, sync}} = require("../index");
+const {compose} = require("ramda");
+const ss = compose(simple, sync);
+const jsonSS = compose(jsonApi, ss);
 const app = compile(
-  get("^/person", {}, () => "You tried to get everyone."),
-  post(`^/person`, {}, jsonBody((ctx) => `You tried to create person ${ctx.body.name}`))
-)
-server(app, "localhost", 5000);
+  get("^/person", {}, ss(() => "You tried to get everyone.")),
+  post("^/person", {}, jsonSS((ctx) => ctx.body.then(({name}) => `You tried to create person ${name}`)))
+);
+serve(app, "localhost", 5000);
 ```
 ### List of current middleware
 * **streamingBody**: turns the body into a kefir stream of data chunks.  Adds `body$: kefir.Observable` to context.
@@ -86,7 +90,9 @@ Functions are your friend, so just compose them.  Beware that order of side effe
 ```javascript
 const stack = compose(
   errorHandler,
-  requestLogger(null)
+  requestLogger(null),
+  simple,
+  sync
 );
 serve(stack(() => "hello world"), "localhost", 5000);
 ```
@@ -94,7 +100,9 @@ will be different from
 ```javascript
 const stack = compose(
   requestLogger(null),
-  errorHandler
+  errorHandler,
+  simple,
+  sync
 );
 serve(stack(() => "hello world"), "localhost", 5000);
 ```
@@ -105,12 +113,16 @@ You may send a kefir or Baconjs stream (duck types to `onValue: (f: Function) ->
 
 ## Åpp example
 ```javascript
-const {serve, router: {compile, get}, apps: {fileServer}} = require("angstrom");
+const {
+    serve,
+    router: {compile, get},
+    apps: {fileServer}
+} = require("../index");
 const {identity} = require("ramda");
 const app = compile(
-  get("^/(.*)$", {path: identity}, fileServer(".")) // serves files out of CWD; streams off disk, not buffered
+  get("^/(.*)$", {path: identity}, fileServer("./")) // serves files out of CWD; streams off disk, not buffered
 );
 serve(app, "localhost", 5000);
 ```
 ### List of current apps
-* **fileServer**: expects to run inside a router that provides the path completion (on context), root is provided during construction.
+* **fileServer**: expects to run inside a router that provides the path completion (on context), root is provided during construction.  Please note this is mostly an example.  This app will crash the parent process if you attempt to read a directory and not a file.
