@@ -79,7 +79,7 @@ server(app, "localhost", 5000);
 * **errorHandler**: listens for crashes in the contained app and converts to server friendly responses, also logs the error to stdout.  Implemented with try/catch, so beware nesting with other try/catch.
 * **requestLogger**: requires a parameter which generates a unique ID for each request (null to default to UUIDv4, can be synchronous or thenable).  Logs to stdout.  Logs beginning of request, and after service is complete.  Provides function `log` on `ctx` which takes arbitrary Key-Value pair object and turns it into log data.
 * **sync**: Allows you to pass back synchronous data (Context -> ResponseDescriptor).
-* **simple**: Allows you to pass back a string that will be interpolated into a ResponseDescriptor with 200 status (Context -> String).
+* **simple**: Allows you to pass back a string that will be interpolated into a ResponseDescriptor with 200 status (Context -> Promise String).
 
 ### Stacking middleware
 Functions are your friend, so just compose them.  Beware that order of side effects matters.
