@@ -1,17 +1,9 @@
-module.exports = (function ({curry, identity, T, invoker, assoc, composeP, compose, prop}, {fromReadableStream}) {
-    const join = invoker(1, "join");
-    const bodyAsStream = compose(fromReadableStream, prop("req"));
-    const bufferedBodyFromStream = (ctx) => bodyAsStream(ctx)
-        .bufferWhile(T)
-        .map(join(""))
-        .toPromise();
-    const jsonBodyFromStream = composeP(JSON.parse, bufferedBodyFromStream);
-    const addRequestModifier = curry((property, transform, app, ctx) => app(assoc(property, transform(ctx), ctx)));
-
+module.exports = (function ({streamingBody, bufferedBody, jsonBody}, {curry}) {
     return {
-        streamingBody: addRequestModifier("body$", bodyAsStream),
-        bufferedBody: addRequestModifier("body", bufferedBodyFromStream),
-        jsonBody: addRequestModifier("body", jsonBodyFromStream),
+        streamingBody,
+        bufferedBody,
+        jsonBody,
+        jsonApi: require("./jsonApi"),
         errorHandler: curry((f, ctx) => {
             try {
                 return f(ctx);
@@ -27,7 +19,6 @@ module.exports = (function ({curry, identity, T, invoker, assoc, composeP, compo
         requestLogger: require("./requestLogger")
     };
 }(
-    require("ramda"),
-    require("kefir"),
-    require("../streams")
+    require("./body"),
+    require("ramda")
 ));
