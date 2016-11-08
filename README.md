@@ -76,8 +76,28 @@ server(app, "localhost", 5000);
 * **bufferedBody**: attempts to buffer the entire body and return a promise for it. Adds `body: Promise String` to context.
 * **jsonBody**: bufferedBody, but with parsing to JSON included. Adds `body: Promise Object` to context.
 * **errorHandler**: listens for crashes in the contained app and converts to server friendly responses, also logs the error to stdout.  Implemented with try/catch, so beware nesting with other try/catch.
+* **requestLogger**: requires a parameter which generates a unique ID for each request (null to default to UUIDv4, can be synchronous or thenable).  Logs to stdout.  Logs beginning of request, and after service is complete.  Provides function `log` on `ctx` which takes arbitrary Key-Value pair object and turns it into log data.
 
-### Streaming responses
+### Stacking middleware
+Functions are your friend, so just compose them.  Beware that order of side effects matters.
+```javascript
+const stack = compose(
+  errorHandler,
+  requestLogger(null)
+);
+serve(stack(() => "hello world"), "localhost", 5000);
+```
+will be different from
+```javascript
+const stack = compose(
+  requestLogger(null),
+  errorHandler
+);
+serve(stack(() => "hello world"), "localhost", 5000);
+```
+In the first example, request logging will begin, but logging does not handle exceptions, so crashes in an app will propagate past the logger to the error handler.  This will look, in the log, like the request wasn't serviced even though the error handler services the request.  In the second example, the error handler coerces errors into responses, so the logger can appropriately log them like in other instances.  Pick whichever ordering of middleware makes sense for your endpoints/application.
+
+## Streaming responses
 You may send a kefir or Baconjs stream (duck types to `onValue: (f: Function) -> ()`) as `body$` instead of `body` in the promise for the response descriptor, and it will consume the stream into the response body.
 
 ## Åpp example

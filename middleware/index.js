@@ -23,10 +23,11 @@ module.exports = (function ({curry, identity, T, invoker, assoc, composeP, compo
                     headers: {"Content-Type": "text/plain"}
                 });
             }
-        })
+        }),
+        requestLogger: require("./requestLogger")
     };
 }(
     require("ramda"),
     require("kefir"),
-    require("./streams")
+    require("../streams")
 ));
