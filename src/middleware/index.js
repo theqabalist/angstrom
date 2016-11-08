@@ -1,6 +1,6 @@
 module.exports = (function (
     {streamingBody, bufferedBody, jsonBody},
-    {curry, curryN, compose, composeP, is},
+    {curry, partial, compose, composeP, is},
     {resolve}
 ) {
     return {
@@ -21,8 +21,8 @@ module.exports = (function (
             }
         }),
         requestLogger: require("./requestLogger"),
-        sync: curryN(2, compose)(resolve),
-        simple: curryN(2, composeP)(x => is(String, x) ? {body: x, status: 200} : x)
+        sync: partial(compose, [resolve]),
+        simple: partial(composeP, [x => is(String, x) ? {body: x, status: 200} : x])
     };
 }(
     require("./body"),
