@@ -8,11 +8,11 @@ module.exports = (function (
         bufferedBody,
         jsonBody,
         jsonApi: require("./jsonApi"),
-        errorHandler: curry((f, ctx) => {
+        errorHandler: curry((reporter, f, ctx) => {
             try {
                 return f(ctx);
             } catch (e) {
-                console.error(e);
+                reporter(e);
                 return Promise.resolve({
                     status: 500,
                     body: e.stack,

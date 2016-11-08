@@ -80,7 +80,7 @@ serve(app, "localhost", 5000);
 * **bufferedBody**: attempts to buffer the entire body and return a promise for it. Adds `body: Promise String` to context.
 * **jsonBody**: bufferedBody, but with parsing to JSON included. Adds `body: Promise Object` to context.
 * **jsonApi**: jsonBody, but with parsing from and serializing to JSON included. Adds `body: Promise Object` to context.  Checks if incoming headers are application/json, and sets outgoing headers to application/json.
-* **errorHandler**: listens for crashes in the contained app and converts to server friendly responses, also logs the error to stdout.  Implemented with try/catch, so beware nesting with other try/catch.
+* **errorHandler**: listens for crashes in the contained app and converts to server friendly responses, also logs the error to the reporter function provided.  Implemented with try/catch, so beware nesting with other try/catch.
 * **requestLogger**: requires a parameter which generates a unique ID for each request (null to default to UUIDv4, can be synchronous or thenable).  Logs to stdout.  Logs beginning of request, and after service is complete.  Provides function `log` on `ctx` which takes arbitrary Key-Value pair object and turns it into log data.
 * **sync**: Allows you to pass back synchronous data (`Context -> ResponseDescriptor`).
 * **simple**: Allows you to pass back a string that will be interpolated into a ResponseDescriptor with 200 status (`Context -> Promise String`).
@@ -89,7 +89,7 @@ serve(app, "localhost", 5000);
 Functions are your friend, so just compose them.  Beware that order of side effects matters.
 ```javascript
 const stack = compose(
-  errorHandler,
+  errorHandler(console.error.bind(console)),
   requestLogger(null),
   simple,
   sync
@@ -100,7 +100,7 @@ will be different from
 ```javascript
 const stack = compose(
   requestLogger(null),
-  errorHandler,
+  errorHandler(console.error.bind(console)),
   simple,
   sync
 );
