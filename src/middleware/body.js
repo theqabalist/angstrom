@@ -10,11 +10,13 @@ module.exports = (function (
         .toPromise();
     const jsonBodyFromStream = composeP(JSON.parse, bufferedBodyFromStream);
     const addRequestModifier = curry((property, transform, app, ctx) => app(assoc(property, transform(ctx), ctx)));
+    const addSyncRequestModifier =
+        curry((property, transform, app, ctx) => transform(ctx).then(x => app(assoc(property, x, ctx))));
 
     return {
         streamingBody: addRequestModifier("body$", bodyAsStream),
-        bufferedBody: addRequestModifier("body", bufferedBodyFromStream),
-        jsonBody: addRequestModifier("body", jsonBodyFromStream)
+        bufferedBody: addSyncRequestModifier("body", bufferedBodyFromStream),
+        jsonBody: addSyncRequestModifier("body", jsonBodyFromStream)
     };
 }(
     require("ramda"),
