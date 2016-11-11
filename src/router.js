@@ -1,4 +1,4 @@
-module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, assoc, always, prop}, Promise) {
+module.exports = (function ({curry, compose, pipe, zip, mergeAll, toPairs, cond, map, assoc, always, prop}, Promise) {
     const handleRoute = curry(
         (method, pattern, pmap, handler, table) =>
             table.concat(Array.of([new RegExp(method), new RegExp(pattern), pmap, handler]))
@@ -12,7 +12,7 @@ module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, 
 
     const defaultHandler = [/.*/, /.*/, {}, always(Promise.resolve({body: "not found", status: 404}))];
     function compile(...directives) {
-        const table = compose(...directives)([]).concat(Array.of(defaultHandler));
+        const table = pipe(...directives)([]).concat(Array.of(defaultHandler));
         const condable = map(([meth, pat, pmap, handler]) => {
             const pred = compose(req => req.method.match(meth) && req.url.match(pat), prop("req"));
             const cont = transformPattern(pat, pmap, handler);
@@ -26,7 +26,8 @@ module.exports = (function ({curry, compose, zip, mergeAll, toPairs, cond, map, 
         get: handleRoute("GET"),
         put: handleRoute("PUT"),
         post: handleRoute("POST"),
-        del: handleRoute("DELETE"),
+        delete: handleRoute("DELETE"),
+        patch: handleRoute("PATCH"),
         sub: handleRoute(".*")
     };
 }(

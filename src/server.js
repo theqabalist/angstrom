@@ -1,31 +1,31 @@
 module.exports = (function (
     {createServer}, // http
-    {fromEvents, pool, constant, constantError, fromPromise}, // kefir
-    {head, last, objOf, cond, has, T, compose, toPairs, merge}
+    {fromEvents, pool, constant, constantError, fromPromise, never}, // kefir
+    {head, last, objOf, cond, has, T, compose, toPairs, curry, mergeAll, invoker}
 ) {
     const server = createServer();
     const raw$ = fromEvents(server, "request", (req, res) => [req, res]);
     const req$ = raw$.map(head);
+    const resEnd = invoker(1, "end");
 
-    function writeScalarResponse([desc, res]) {
-        const withDefaults = merge({
-            status: 200,
-            headers: {},
-            body: ""
-        }, desc);
+    const withResponseSetup = curry((defaultBody, f, [desc, res]) => {
+        const withDefaults = mergeAll([{status: 200, message: "OK", headers: {}}, defaultBody, desc]);
         res.statusCode = withDefaults.status;
         if (withDefaults.message) {
             res.statusMessage = withDefaults.message;
         }
         toPairs(withDefaults.headers).forEach((args) => res.setHeader(...args));
-        res.end(withDefaults.body);
-    }
+        const bodyKey = Object.keys(defaultBody)[0];
+        console.log(withDefaults);
+        f(withDefaults[bodyKey], res);
+    });
 
-    function writeStreamResponse([desc, res]) {
-        res.statusCode = desc.status;
-        desc.body$.onValue(res.write.bind(res));
-        desc.body$.onEnd(res.end.bind(res));
-    }
+    const writeScalarResponse = withResponseSetup({body: ""}, resEnd);
+
+    const writeStreamResponse = withResponseSetup({body$: never()}, (body$, res) => {
+        body$.onValue(res.write.bind(res));
+        body$.onEnd(res.end.bind(res));
+    });
 
     const writeResponse = cond([
         [compose(has("body$"), head), writeStreamResponse],
@@ -43,6 +43,8 @@ module.exports = (function (
             server.listen(port, host, () => {
                 console.info(`Angstrom listening on ${host}:${port}.`);
             });
+
+            return server.close.bind(server);
         }
     };
 }(
