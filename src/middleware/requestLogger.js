@@ -35,7 +35,7 @@ module.exports = (function ({v4: uuid4}, {curry, toPairs, assoc, merge}, moment,
             });
     });
 }(
-    require("node-uuid"),
+    require("uuid"),
     require("ramda"),
     require("moment"),
     require("bluebird")

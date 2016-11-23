@@ -16,8 +16,8 @@
     "bluebird": "^3.4.6",
     "kefir": "^3.6.0",
     "moment": "^2.15.2",
-    "node-uuid": "^1.4.7",
-    "ramda": "^0.22.1"
+    "ramda": "^0.22.1",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
