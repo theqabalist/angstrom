@@ -1,4 +1,9 @@
-module.exports = (function ({curry, compose, pipe, zip, mergeAll, toPairs, cond, map, assoc, always, prop}, Promise) {
+module.exports = (function ({
+    curry, compose, pipe, zip, mergeAll, toPairs, cond, map, converge, pair,
+    assoc, always, prop, match, tail, identity, replace, fromPairs
+},
+    Promise
+) {
     const handleRoute = curry(
         (method, pattern, pmap, handler, table) =>
             table.concat(Array.of([new RegExp(method), new RegExp(pattern), pmap, handler]))
@@ -21,6 +26,19 @@ module.exports = (function ({curry, compose, pipe, zip, mergeAll, toPairs, cond,
         return cond(condable);
     }
 
+    const slugMatch = /:([^/]+)/g;
+    const slugs = pipe(
+        match(slugMatch),
+        map(tail),
+        map(x => [x, identity]),
+        fromPairs
+    );
+
+    const regexify = pipe(
+        replace(slugMatch, "([^/]+)"),
+        x => `^${x}$`
+    );
+
     return {
         compile,
         get: handleRoute("GET"),
@@ -28,7 +46,8 @@ module.exports = (function ({curry, compose, pipe, zip, mergeAll, toPairs, cond,
         post: handleRoute("POST"),
         delete: handleRoute("DELETE"),
         patch: handleRoute("PATCH"),
-        sub: handleRoute(".*")
+        sub: handleRoute(".*"),
+        route: (method, sugary, handler) => method(...converge(pair, [regexify, slugs])(sugary).concat(handler))
     };
 }(
     require("ramda"),

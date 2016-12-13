@@ -16,7 +16,6 @@ module.exports = (function (
         }
         toPairs(withDefaults.headers).forEach((args) => res.setHeader(...args));
         const bodyKey = Object.keys(defaultBody)[0];
-        console.log(withDefaults);
         f(withDefaults[bodyKey], res);
     });
 
